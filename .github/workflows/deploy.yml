@@ -29,8 +29,8 @@ jobs:
             cran::shinylive
             cran::shiny
             cran::bslib
-            cran::ggplot2
-            cran::dplyr
+            cran::readxl
+            cran::curl
 
       - name: Export Shinylive app
         shell: Rscript {0}
