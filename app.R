@@ -110,8 +110,8 @@ ui <- page_navbar(
           card_header(
             style = "background-color: #006dae; color: white; font-size: 14px; font-weight: bold; border-radius: 0px;",
             "Curriculum Vitae of Dr Helen Stölting"),
-          height = 120,
-          p("Click the buttons below to explore the different sections")
+          #height = 120,
+          p("My CV is still under construction - please check back later! :) ")
         )#card
       ), #column 
       layout_column_wrap(
