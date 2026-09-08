@@ -2,11 +2,20 @@ library(shiny)
 library(bslib)
 library(readxl)
 library(curl)
+library(magrittr)
+library(dplyr)
+library(purrr)
+
 
 #setwd("C:/Users/hsto0009/OneDrive - Monash University/Admin/CVs/Shiny_CV")
 data.experience <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Experience")
 data.education <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Education")
-
+data.employment <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Employment")
+data.pubs <- read.csv(file = file.path("data", "CV_pubs.csv"))
+data.conferences <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Conferences")
+data.prizes <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Prizes")
+data.skills <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Skills")
+data.commitment <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Commitment")
 #UI ---- 
 ui <- page_navbar(
   theme = bs_theme(
@@ -91,12 +100,22 @@ ui <- page_navbar(
       $(this).toggleClass('flipped');
     });
          ")#HTML
-    )#tags$script
+    ),#tags$script
+    tags$link(
+      rel = "shortcut icon", href = "favicon.svg"
+    )#tags$link
   ), #$tags$head
   
   
   # App title ----
-  title = "CV of Dr Helen Stölting",
+  title = tags$a(
+    href = "#",
+    onclick = "Shiny.setInputValue('logo_click', Date.now()); return false;",
+    tags$img(
+      src = "favicon.svg",
+      height = "50px"
+    )
+  ),
   id = "main_nav",
   #tab 0: landing page ----
   nav_panel(
@@ -111,7 +130,20 @@ ui <- page_navbar(
             style = "background-color: #006dae; color: white; font-size: 14px; font-weight: bold; border-radius: 0px;",
             "Curriculum Vitae of Dr Helen Stölting"),
           #height = 120,
-          p("My CV is still under construction - please check back later! :) ")
+          div(
+            class = "exptext", 
+            style = "text-align: left; ",
+            tags$ul(
+              tags$li("Passionate postdoctoral immunologist with a proven publication record across mucosal immunology, infection, and metabolic disease."),
+              tags$li("Skilled in bridging wet-lab disease models with data-driven bioinformatic pipelines (R, omics analysis, Shiny)."),
+              tags$li("Actively contributing to the ECR community in committee chair and member roles."),
+              tags$li("Open to postdoctoral, fellowship, and industry roles focused on exciting, hypothesis-led, and data-driven immunology projects.")
+              )
+            )
+            
+
+          
+          
         )#card
       ), #column 
       layout_column_wrap(
@@ -258,22 +290,40 @@ ui <- page_navbar(
     )
   ), #end of nav_panel
   nav_panel(
-    title = "Employment"
+    title = "Employment",
+    div(
+      uiOutput("employment")
+    )
   ), #end of nav_panel
   nav_panel(
-    title = "Publications"
+    title = "Publications", 
+    div(
+      uiOutput("publications")
+    )
   ), 
   nav_panel(
-    title = "Grants"
+    title = "Grants, Awards and Prizes", 
+    div(
+      uiOutput("prizes")
+    )
   ), 
   nav_panel(
-    title = "Conferences"
+    title = "Conferences", 
+    div(
+      uiOutput("conferences")
+    )
   ), 
   nav_panel(
-    title = "Skills"
+    title = "Skills", 
+    div(
+      uiOutput("skills")
+    )
   ), 
   nav_panel(
-    title = "Commitment"
+    title = "Commitment", 
+    div(
+      uiOutput("commitment")
+    )
   ),
   nav_panel(
     title = "Contact and Refs"
@@ -286,6 +336,9 @@ ui <- page_navbar(
 server <- function (input, output, session){
   
   #actionButton observers ---- 
+  observeEvent(input$logo_click, {
+    updateNavbarPage(session, "main_nav", selected = "Home")
+  })
   observeEvent(input$goexperience, {
     updateNavbarPage(session, "main_nav", selected = "Research Experience")
   })
@@ -299,7 +352,7 @@ server <- function (input, output, session){
     updateNavbarPage(session, "main_nav", selected = "Publications")
   })
   observeEvent(input$gogrants, {
-    updateNavbarPage(session, "main_nav", selected = "Grants")
+    updateNavbarPage(session, "main_nav", selected = "Grants, Awards and Prizes")
   })
   observeEvent(input$goconferences, {
     updateNavbarPage(session, "main_nav", selected = "Conferences")
@@ -319,26 +372,32 @@ server <- function (input, output, session){
   make_exp_entry <- function(row) {
     
     card(
-      class = "card-custom", 
+      class = "card-custom",
       card_header(
         div(
           div(
-            class = "exptype", 
-            row$Type), 
-          div(
-            class = "exptitle", 
-            row$Title), 
-          div(
-            class = "expdate",
-            row$From, 
-            " – ", 
-            row$To)
-          )
-        ),
-      
+            tags$img(src = row$Logo, height = "50px"))
+          
+        )
+        
+      ),
+
       card_body(
+        div(
+          class = "edutitle", 
+          row$Type), 
+        div(
+          class = "exptitle", 
+          style = "font-weight: 600; ", 
+          row$Title), 
+        div(
+          class = "expdate",
+          row$From, 
+          " – ", 
+          row$To),
 
         div(class = "expplace", 
+            style = "color: #000000; ",
               HTML(gsub("\r?\n", "<br>", row$Place))
         ),
         p(
@@ -374,6 +433,7 @@ server <- function (input, output, session){
     
     layout_column_wrap(
       width = 300,
+      style = "grid-auto-rows: auto;",
       !!!expcards
     )
   })
@@ -437,7 +497,405 @@ server <- function (input, output, session){
     
     layout_column_wrap(
       width = 250,
+      style = "grid-auto-rows: auto;",
       !!!educards
+    )
+  })
+  #employment----
+  make_emp_entry <- function(row) {
+    
+    card(
+      class = "card-custom", 
+      card_header(
+        div(
+          div(
+            tags$img(src = row$Logo, height = "50px"))
+          
+        )
+        
+      ),
+      
+      card_body(
+        
+        div(
+          div(style = "min-height: 48px; ", 
+              class = "edutitle", 
+              row$Title), 
+          div(class = "exptext",
+              style = "color: #000000; font-weight: 300; ", 
+              row$Employer), 
+          div(
+            class = "expdate",
+            row$From, 
+            " – ", 
+            row$To)
+        ), 
+        div(class = "expdate", 
+            "Supervised by:", 
+                row$Supervisor
+        
+        )
+      )
+    )
+  }
+  
+  output$employment <- renderUI({
+    
+    empcards <- lapply(seq_len(nrow(data.employment)), function(i) {
+      make_emp_entry(data.employment[i, ])
+    })
+    
+    layout_column_wrap(
+      width = 250,
+      style = "grid-auto-rows: auto;",
+      !!!empcards
+    )
+  })
+  
+  #publications ----
+  format_authors <- function(authors, my_name) {
+    
+    author_list <- trimws(strsplit(authors, "; ")[[1]])
+    
+    formatted <- sapply(author_list, function(author) {
+      if (grepl(my_name, author) == TRUE) {
+        paste0("<strong><u style = 'color: #000000'>", author, "</u></strong>")
+      } else {
+        author
+      }
+    })
+    
+    HTML(paste(formatted, collapse = "; "))
+  }
+  get_year <- function(x) {
+    
+    x <- trimws(x)
+    
+    if(nchar(x) == 4){
+      return(x)
+    }
+    else if(grepl("^\\d{4}-\\d{2}-\\d{2}", x)) {
+      return(substr(x, 1, 4))
+    }
+    else if (grepl("^\\d{4}(-\\d{2})?$(-\\d{2})?$", x)) {
+      # yyyy-mm OR yyyy
+      return(substr(x, 1, 4))
+    }
+    
+    else if (grepl("^\\d{2}/\\d{2}/\\d{2}$", x)) {
+      # dd/mm/yy
+      return(paste0("20", substr(x, 7, 8)))
+    }
+    
+   
+    else{NA_character_}
+    
+  }
+  
+  make_pub_entry <- function(row) {
+    
+    card(
+      class = "card-custom", 
+      card_header(
+        div(
+          div(
+            tags$img(src = row$logo, style = "max-width: 100%; max-height: 80px; "))
+          
+        )
+        
+      ),
+      
+      card_body(
+        
+        div(
+          div(
+            class = "exptext",
+            style = "font-weight: 600;  ", 
+            row$journal, " · ",
+            get_year(row$publication_date)
+            ),
+          div(style = "min-height: 48px; margin-bottom: 0.5rem; ", 
+              class = "edutitle", 
+              row$title), 
+          
+          
+          div(class = "exptext",
+              style = "color: #000000; ", 
+              format_authors(row$authors, "lting"))
+         
+        ) ,
+        if(row$type != "preprint"){
+          div(class = "exptext", 
+              style = "font-weight: 600; ", 
+             paste0("Citations: ", row$cited_by, " · FWCI: ", signif(row$FWCI, 3))
+             )
+        }
+        ,div(class = "exptext", 
+             style = "color: #006dae; font-weight: 600; ", 
+                  tags$a(
+                    href = paste0("https://doi.org/", row$doi),
+                    paste0("DOI: ", row$doi), 
+                    target = "_blank"
+                  )
+
+            
+        )
+      )
+    )
+  }
+  
+  output$publications <- renderUI({
+    
+    pubcards <- lapply(seq_len(nrow(data.pubs)), function(i) {
+      make_pub_entry(data.pubs[i, ])
+    })
+    
+    layout_column_wrap(
+      width = 250,
+      style = "grid-auto-rows: auto;",
+      !!!pubcards
+    )
+  })
+  
+  #conferences ----
+  make_conf_entry <- function(row) {
+    
+    card(
+      class = "card-custom", 
+      card_header(
+        div(
+          div(
+            tags$img(src = row$Logo, style = "max-width: 100%; max-height: 80px; "))
+          
+        )
+        
+      ), 
+      
+      card_body(
+        
+        div(
+          div(
+            class = "edutitle",
+            style = "margin-bottom: 0.5rem;  ", 
+            row$Event
+          ),
+          div(
+            class = "exptext",
+            row$Date, " · ", row$Location
+          ),
+          div(style = "font-weight: 600; margin-bottom: 0.5rem;  ", 
+              class = "edutext", 
+              row$Role), 
+
+          if(!is.na(row$`Additional Notes`)){
+            div(class = "expdate", 
+                row$`Additional Notes`
+            )
+          } 
+      )
+    )
+    )
+    
+  }
+  
+  output$conferences <- renderUI({
+    
+    confcards <- lapply(seq_len(nrow(data.conferences)), function(i) {
+      make_conf_entry(data.conferences[i, ])
+    })
+    
+    layout_column_wrap(
+      width = 250,
+      style = "grid-auto-rows: auto;",
+      !!!confcards
+    )
+  })
+  
+  #prizes ----
+  make_prize_entry <- function(row) {
+    
+    card(
+      class = "card-custom", 
+      card_header(
+        style = "min-height: 10px;",
+        div(
+          div(
+            class = "exptext",
+            row$Date, " · ", row$Type
+          )
+          
+        )
+        
+      ),
+      
+      card_body(
+        
+        div(
+          div(
+            class = "edutitle",
+            style = "margin-bottom: 0.5rem;  ", 
+            row$Title
+          ),
+          if(!is.na(row$Description)){
+            div(class = "exptext", 
+                style = "margin-top: 0.5rem;  ", 
+                row$Description
+            )
+          }, 
+          div(class = "exptext", 
+              style = "margin-top: 0.5rem; margin-bottom: 0.5rem;  ", 
+              "Value: ", row$Value),
+          
+          if(!is.na(row$Image)){
+            div(
+              tags$img(src = row$Image, style = "max-width: 100%; max-height: 150px; "))
+          }
+          
+          
+        )
+      )
+    )
+    
+  }
+  
+  output$prizes <- renderUI({
+    
+    prizecards <- lapply(seq_len(nrow(data.prizes)), function(i) {
+      make_prize_entry(data.prizes[i, ])
+    })
+    
+    layout_column_wrap(
+      width = 250,
+      style = "grid-auto-rows: auto;",
+      !!!prizecards
+    )
+  })
+  
+  #skills----
+  output$skills <- renderUI({
+    
+    # 1. Group data by Category & Logo
+    grouped_skills <- data.skills %>%
+      mutate(Category = factor(Category, levels = .$Category %>% unique())) %>%
+      group_by(Category, Logo) %>%
+      summarise(Descriptions = list(Description), .groups = "drop")
+    
+    
+    # 2. Map through each category to construct a bslib card
+    cards_list <- pmap(grouped_skills, function(Category, Logo, Descriptions) {
+      card(
+        class = "card-custom", 
+        card_header(
+          div(
+            div(
+              tags$img(src = Logo, style = "max-width: 100%; height: 80px; "))
+            
+          )
+          
+        ),
+        card_body(
+          div(
+            class = "edutitle", 
+            Category
+          ),
+          tags$ul(
+            lapply(Descriptions, tags$li)
+          )
+        )
+      )
+    })
+    
+    # 3. Render grid layout (responsive: 3 columns on wide screens, minimum width 300px)
+    layout_column_wrap(
+      width = 250,
+      style = "grid-auto-rows: auto;",
+      !!!cards_list
+    )
+  })
+  
+  #commitment----
+  make_commitment_divs <- function(row) {
+    
+    div(
+      if(!is.na(row$Description)){
+        div(
+          class = "exptitle", 
+          style = "font-weight: 600; ", 
+          row$Description
+        )
+      }, 
+      if(!is.na(row$Date)){
+        div(
+          class = "expdate", 
+          row$Date
+        )
+      }, 
+      if(!is.na(row$Info)){
+        div(class = "exptext", 
+            style = "margin-top: 0.5rem;  ", 
+            row$Info
+        )
+      },
+      if(!is.na(row$Bullets)){
+        string <- strsplit(row$Bullets, ";")[[1]]
+        div( 
+          tags$ul(
+            lapply(seq_along(string), function(i) {
+              tags$li(
+                string[i]
+              )
+            })
+          )
+        )
+      }, 
+      if(!is.na(row$Link)){
+        div(div(
+          class = "exptext", 
+          "Available at:"), 
+                tags$a(
+                  href = row$Link,
+                  target = "_blank", 
+                  row$Link
+                )
+              )
+      }
+    )
+    
+  }
+  output$commitment <- renderUI({
+    
+    # 1. Group data 
+    grouped_commitment <- data.commitment %>%
+      mutate(Type = factor(Type, levels = .$Type %>% unique())) %>%
+      split(., .$Type)
+    
+    
+    cards <- map2(names(grouped_commitment), grouped_commitment, function(type_name, sub_df) {
+      
+      # Generate the list of row divs for this specific Type
+      body_divs <- lapply(seq_len(nrow(sub_df)), function(i) {
+        make_commitment_divs(sub_df[i, ])
+      })
+      
+      # Construct the Card
+      card(
+        class = "card-custom", 
+        card_header(
+          style = "min-height: 0px; ",
+          div(class = "edutitle", 
+              type_name)
+        ),
+        card_body(
+          body_divs
+        )
+      )
+    })
+    
+    # Return the list of cards wrapped in a container
+    layout_column_wrap(
+      width = 250,
+      style = "grid-auto-rows: auto;",
+      !!!cards
     )
   })
 }
