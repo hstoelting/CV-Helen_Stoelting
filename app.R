@@ -16,6 +16,7 @@ data.conferences <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sh
 data.prizes <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Prizes")
 data.skills <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Skills")
 data.commitment <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Commitment")
+data.contact <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Contact")
 #UI ---- 
 ui <- page_navbar(
   theme = bs_theme(
@@ -66,8 +67,8 @@ ui <- page_navbar(
     .card-custom .card-body {color: black; font-size: 14px; text-align: left; display: flex; flex-direction: column; justify-content: flex-start; }
     .card-custom .card-header {text-align: center; display: flex; justify-content: center; align-items: center; min-height: 120px}
     .card-content {background-color: white ; border-radius: 0px; padding: 0px ; border: 1px solid #F6F6F6; box-shadow: 2px 5px 2px #F6F6F6; 
-                  min-height: 400px; height: auto;  }
-    .card-content .card-body {color: black; font-size: 14px; text-align: center; padding: 5px;  }
+                  min-height: 0px; height: auto;  }
+    .card-content .card-body {color: black; font-size: 14px; text-align: left; padding: 5px;  }
     .card-content .card-header {text-align: center; }
     .card-content-sm {background-color: white ; border-radius: 0px; padding: 0px ; border: 1px solid #F6F6F6; box-shadow: 2px 5px 2px #F6F6F6; 
                   min-height: 200px; height: auto;  }
@@ -298,6 +299,32 @@ ui <- page_navbar(
   nav_panel(
     title = "Publications", 
     div(
+      style = "margin-bottom: -25px; ",
+      card(
+        class = "card-content", 
+        style = "min-height: 0px; justify-content: left; ", 
+        div(
+          class = "exptext",
+          style = "font-weight: 600; ", 
+          "External links: ",
+          icon("google"),
+          tags$a(
+            href = "https://scholar.google.com/citations?user=gGL4jeIAAAAJ&hl=en", 
+            target = "_blank", 
+            "Google Scholar"
+          ),
+          " · ",
+          icon("orcid", class = "secondary"), 
+          tags$a(
+            href = "https://orcid.org/0000-0002-7830-2776", 
+            target = "_blank", 
+            "ORCiD"
+          )
+        )
+          
+      )
+    ), 
+    div(
       uiOutput("publications")
     )
   ), 
@@ -326,7 +353,10 @@ ui <- page_navbar(
     )
   ),
   nav_panel(
-    title = "Contact and Refs"
+    title = "Contact and Refs",
+    div(
+      uiOutput("contact")
+    )
   )
 ) #end of page_navbar
 
@@ -898,6 +928,64 @@ server <- function (input, output, session){
       !!!cards
     )
   })
+  
+  #contact ----
+  make_cont_entry <- function(row) {
+    
+    card(
+      class = "card-custom", 
+      card_header(
+        style = "min-height: 0px; ",
+        div(class = "edutitle", 
+            if(row$Type == "Reference"){
+              paste0("Reference: ", row$Name)
+            }
+            else {
+              row$Name 
+            }
+            )
+      ), 
+      
+      card_body(
+        
+        div(
+          div(
+            class = "exptitle", 
+            style = "font-weight: 600; margin-bottom: 0.5rem; ", 
+            row$Title
+          ), 
+          div(class = "edutext", 
+              lapply(seq_along(strsplit(row$Address, ";")[[1]]), function(i) {
+                div(strsplit(row$Address, ";")[[1]][i])
+              }) 
+          
+        ),
+        div(
+          class = "edutext", 
+          style = "margin-top: 0.5rem; ", 
+          tags$a(href = paste0("mailto:", row$Email), 
+                 target = "_blank", 
+                 row$Email)
+        )
+      )
+    )
+    )
+    
+  }
+  
+  output$contact <- renderUI({
+    
+    contcards <- lapply(seq_len(nrow(data.contact)), function(i) {
+      make_cont_entry(data.contact[i, ])
+    })
+    
+    layout_column_wrap(
+      width = 250,
+      style = "grid-auto-rows: auto;",
+      !!!contcards
+    )
+  })
+  
 }
 
 shinyApp(ui = ui, server = server)
