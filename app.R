@@ -314,7 +314,7 @@ ui <- page_navbar(
             "Google Scholar"
           ),
           " · ",
-          icon("orcid", class = "secondary"), 
+          icon("orcid"), 
           tags$a(
             href = "https://orcid.org/0000-0002-7830-2776", 
             target = "_blank", 
