@@ -135,10 +135,10 @@ ui <- page_navbar(
             class = "exptext", 
             style = "text-align: left; ",
             tags$ul(
-              tags$li("Passionate postdoctoral immunologist with a proven publication record across mucosal immunology, infection, and metabolic disease."),
-              tags$li("Skilled in bridging wet-lab disease models with data-driven bioinformatic pipelines (R, omics analysis, Shiny)."),
-              tags$li("Actively contributing to the ECR community in committee chair and member roles."),
-              tags$li("Open to postdoctoral, fellowship, and industry roles focused on exciting, hypothesis-led, and data-driven immunology projects.")
+              tags$li("Passionate postdoctoral immunologist with a proven publication record across mucosal immunology, infection, and metabolic disease"),
+              tags$li("Skilled in bridging wet-lab disease models with exploratory bioinformatic pipelines (R, omics analysis, Shiny)"),
+              tags$li("Actively contributing to the ECR community in committee chair and member roles"),
+              tags$li("Open to postdoctoral, fellowship, and industry roles focused on exciting, hypothesis-led, and data-driven immunology projects")
               )
             )
             
@@ -307,7 +307,7 @@ ui <- page_navbar(
           class = "exptext",
           style = "font-weight: 600; ", 
           "External links: ",
-          icon("google"),
+          icon("google-scholar"),
           tags$a(
             href = "https://scholar.google.com/citations?user=gGL4jeIAAAAJ&hl=en", 
             target = "_blank", 
