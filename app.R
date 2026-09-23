@@ -1,22 +1,18 @@
 library(shiny)
 library(bslib)
-library(readxl)
 library(curl)
-library(magrittr)
-library(dplyr)
 library(purrr)
 
-
 #setwd("C:/Users/hsto0009/OneDrive - Monash University/Admin/CVs/Shiny_CV")
-data.experience <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Experience")
-data.education <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Education")
-data.employment <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Employment")
+data.experience <- read.csv(file = file.path("data", "Experience.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
+data.education <- read.csv(file = file.path("data", "Education.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
+data.employment <- read.csv(file = file.path("data", "Employment.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
 data.pubs <- read.csv(file = file.path("data", "CV_pubs.csv"))
-data.conferences <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Conferences")
-data.prizes <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Prizes")
-data.skills <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Skills")
-data.commitment <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Commitment")
-data.contact <- read_xlsx(path = file.path("data", "CV_masterfile.xlsx"), sheet = "Contact")
+data.conferences <- read.csv(file = file.path("data", "Conferences.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
+data.prizes <- read.csv(file = file.path("data", "Prizes.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
+data.skills <- read.csv(file = file.path("data", "Skills.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
+data.commitment <- read.csv(file = file.path("data", "Commitment.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
+data.contact <- read.csv(file = file.path("data", "Contact.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
 #UI ---- 
 ui <- page_navbar(
   theme = bs_theme(
@@ -135,10 +131,10 @@ ui <- page_navbar(
             class = "exptext", 
             style = "text-align: left; ",
             tags$ul(
-              tags$li("Passionate postdoctoral immunologist with a proven publication record across mucosal immunology, infection, and metabolic disease"),
-              tags$li("Skilled in bridging wet-lab disease models with exploratory bioinformatic pipelines (R, omics analysis, Shiny)"),
-              tags$li("Actively contributing to the ECR community in committee chair and member roles"),
-              tags$li("Open to postdoctoral, fellowship, and industry roles focused on exciting, hypothesis-led, and data-driven immunology projects")
+              tags$li("Passionate postdoctoral immunologist with a proven publication record across mucosal immunology, infection, and metabolic disease."),
+              tags$li("Skilled in bridging wet-lab disease models with data-driven bioinformatic pipelines (R, omics analysis, Shiny)."),
+              tags$li("Actively contributing to the ECR community in committee chair and member roles."),
+              tags$li("Open to postdoctoral, fellowship, and industry roles focused on exciting, hypothesis-led, and data-driven immunology projects.")
               )
             )
             
@@ -307,7 +303,7 @@ ui <- page_navbar(
           class = "exptext",
           style = "font-weight: 600; ", 
           "External links: ",
-          icon("google-scholar"),
+          icon("google"),
           tags$a(
             href = "https://scholar.google.com/citations?user=gGL4jeIAAAAJ&hl=en", 
             target = "_blank", 
@@ -433,7 +429,7 @@ server <- function (input, output, session){
         p(
           row$Summary
         ),
-        if(!is.na(row$Publications)){
+        if(!is.na(row$Publications) & nzchar(row$Publications)){
           string <- strsplit(row$Publications, ";")[[1]]
           div(div(
             class = "exptext", 
@@ -506,7 +502,7 @@ server <- function (input, output, session){
             row$Supervisor)
             ),
 
-        if(!is.na(row$Grade)){
+        if(!is.na(row$Grade) & nzchar(row$Grade)){
           div(class = "exptext", 
               "Grade:", 
               row$Grade
@@ -717,9 +713,9 @@ server <- function (input, output, session){
               class = "edutext", 
               row$Role), 
 
-          if(!is.na(row$`Additional Notes`)){
+          if(nzchar(row$AdditionalNotes)){
             div(class = "expdate", 
-                row$`Additional Notes`
+                row$AdditionalNotes
             )
           } 
       )
@@ -805,10 +801,21 @@ server <- function (input, output, session){
   output$skills <- renderUI({
     
     # 1. Group data by Category & Logo
-    grouped_skills <- data.skills %>%
-      mutate(Category = factor(Category, levels = .$Category %>% unique())) %>%
-      group_by(Category, Logo) %>%
-      summarise(Descriptions = list(Description), .groups = "drop")
+    # Preserve unique category order
+    unique_cats <- unique(data.skills$Category)
+    
+    # Group and aggregate descriptions into lists
+    grouped_skills <- aggregate(
+      Description ~ Category + Logo, 
+      data = data.skills, 
+      FUN = as.list
+    )
+    
+    # Rename column to match original output
+    names(grouped_skills)[names(grouped_skills) == "Description"] <- "Descriptions"
+    
+    # Set factor levels to maintain original category order
+    grouped_skills$Category <- factor(grouped_skills$Category, levels = unique_cats)
     
     
     # 2. Map through each category to construct a bslib card
@@ -878,7 +885,7 @@ server <- function (input, output, session){
           )
         )
       }, 
-      if(!is.na(row$Link)){
+      if(!is.na(row$Link) & nzchar(row$Link)){
         div(div(
           class = "exptext", 
           "Available at:"), 
@@ -895,9 +902,14 @@ server <- function (input, output, session){
   output$commitment <- renderUI({
     
     # 1. Group data 
-    grouped_commitment <- data.commitment %>%
-      mutate(Type = factor(Type, levels = .$Type %>% unique())) %>%
-      split(., .$Type)
+    # Preserve unique type order as factor levels
+    data.commitment$Type <- factor(
+      data.commitment$Type, 
+      levels = unique(data.commitment$Type)
+    )
+    
+    # Split data frame into a named list by Type
+    grouped_commitment <- split(data.commitment, data.commitment$Type)
     
     
     cards <- map2(names(grouped_commitment), grouped_commitment, function(type_name, sub_df) {

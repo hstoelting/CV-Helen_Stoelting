@@ -1,0 +1,40 @@
+Category,Description,Logo
+In vivo,"UK Home Office PIL A, B and C holder",in vivo.png
+In vivo,Animal Ethics (gaining approval and reporting),in vivo.png
+In vivo,Mouse breeding and colony management of transgenics,in vivo.png
+In vivo,Mouse models of allergic airway disease and invasive fungal infection with Candida sp. ,in vivo.png
+In vivo,"Administration methods in mice: Intranasal, intraperitoneal, intravenous and oral gavage ",in vivo.png
+In vivo,Lung function measurements (Scireq flexiVent),in vivo.png
+In vivo,"Cannulation of trachea, bronchoalveolar lavage and in situ inflation of lungs",in vivo.png
+In vivo,"Dissection (neonatal and adult mice), perfusion, cardiac puncture",in vivo.png
+In vivo,Generation of precision-cut lung slices (PCLS),in vivo.png
+In vivo,Bone marrow isolation,in vivo.png
+In vitro,Cell culture of human and mouse primary cells and cell lines,in vitro.svg
+In vitro,Air-liquid interface (ALI) culture of primary airway epithelial cells,in vitro.svg
+In vitro,"Infection with viral, bacterial and fungal pathogens (including class 2 pathogens)",in vitro.svg
+In vitro,"Cell transfection, viral transduction, generation of KO cell lines using CRISPR/Cas9",in vitro.svg
+General,Bacterial and fungal culture and molecular cloning,general.svg
+General,Biochemical assays,general.svg
+General,Flow cytometry,general.svg
+General,IHC and immunofluorescence,general.svg
+General,"Microscopy: basic, confocal, live imaging, second-harmonics generation",general.svg
+General,"Nucleic acid isolation, (q)PCR, ELISA, western blot",general.svg
+General,"Protein expression and purification, thermal shift assay",general.svg
+Analysis,Reproducible and automated analysis using Rstudio,analysis.svg
+Analysis,Bulk RNA sequencing analysis ,analysis.svg
+Analysis,"Analysis of large datasets, including omics",analysis.svg
+Analysis,Use of High-Performance Computing (HPC) resources,analysis.svg
+Analysis,Automated image analysis,analysis.svg
+Software,Adobe Illustrator,software.svg
+Software,CellProfiler,software.svg
+Software,FlowJo,software.svg
+Software,ImageJ,software.svg
+Software,Imaris,software.svg
+Software,IntegratedGeneViewer,software.svg
+Software,MS Office,software.svg
+Software,QuPath,software.svg
+Software,Shiny,software.svg
+Languages,German (native),languages.svg
+Languages,English (fluent),languages.svg
+Languages,French (conversational),languages.svg
+Languages,Latin (proficiency certificate),languages.svg
