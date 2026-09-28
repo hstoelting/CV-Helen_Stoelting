@@ -1,7 +1,5 @@
 library(shiny)
 library(bslib)
-library(curl)
-library(purrr)
 
 #setwd("C:/Users/hsto0009/OneDrive - Monash University/Admin/CVs/Shiny_CV")
 data.experience <- read.csv(file = file.path("data", "Experience.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
@@ -361,6 +359,56 @@ ui <- page_navbar(
 #server ---- 
 server <- function (input, output, session){
   
+  date_formatter <- function(date_str){ 
+    # Pattern matches 3 letters, a hyphen, and 2 digits (e.g., "Jan-24")
+    is_mmm_yy <- grepl("^[A-Za-z]{3}-[0-9]{2}$", date_str)
+    ifelse(
+      is_mmm_yy,
+      # Convert "Jan-24" -> "01/2024"
+      format(as.Date(paste0("01-", date_str), format = "%d-%b-%y"), "%m/%Y"),
+      # Keep everything else ("2020-2022", "since 2023", etc.) as-is
+      date_str
+    )
+  }
+  format_authors <- function(authors, my_name) {
+    
+    author_list <- trimws(strsplit(authors, "; ")[[1]])
+    
+    formatted <- sapply(author_list, function(author) {
+      if (grepl(my_name, author) == TRUE) {
+        paste0("<strong><u style = 'color: #000000'>", author, "</u></strong>")
+      } else {
+        author
+      }
+    })
+    
+    HTML(paste(formatted, collapse = "; "))
+  }
+  get_year <- function(x) {
+    
+    x <- trimws(x)
+    
+    if(nchar(x) == 4){
+      return(x)
+    }
+    else if(grepl("^\\d{4}-\\d{2}-\\d{2}", x)) {
+      return(substr(x, 1, 4))
+    }
+    else if (grepl("^\\d{4}(-\\d{2})?$(-\\d{2})?$", x)) {
+      # yyyy-mm OR yyyy
+      return(substr(x, 1, 4))
+    }
+    
+    else if (grepl("^\\d{2}/\\d{2}/\\d{2}$", x)) {
+      # dd/mm/yy
+      return(paste0("20", substr(x, 7, 8)))
+    }
+    
+    
+    else{NA_character_}
+    
+  }
+  
   #actionButton observers ---- 
   observeEvent(input$logo_click, {
     updateNavbarPage(session, "main_nav", selected = "Home")
@@ -418,9 +466,9 @@ server <- function (input, output, session){
           row$Title), 
         div(
           class = "expdate",
-          row$From, 
+          date_formatter(row$From), 
           " – ", 
-          row$To),
+          date_formatter(row$To)),
 
         div(class = "expplace", 
             style = "color: #000000; ",
@@ -431,6 +479,13 @@ server <- function (input, output, session){
         ),
         if(!is.na(row$Publications) & nzchar(row$Publications)){
           string <- strsplit(row$Publications, ";")[[1]]
+          shortstring <- gsub(pattern = "doi.org/", replacement = "", x = string)
+          print(string)
+          print(shortstring)
+          journals <- data.pubs$journal[match(shortstring, data.pubs$doi)]
+          years <-  data.pubs$publication_date[match(shortstring, data.pubs$doi)]
+          print(journals)
+          print(years)
           div(div(
             class = "exptext", 
             "Publications from this experience"), 
@@ -439,7 +494,7 @@ server <- function (input, output, session){
                   tags$li(
                     tags$a(
                       href = paste0("https://", string[i]),
-                      string[i],
+                      paste0(journals[i], " (", get_year(years[i]), ")"),
                       target = "_blank"
                     )
                   )
@@ -457,10 +512,15 @@ server <- function (input, output, session){
       make_exp_entry(data.experience[i, ])
     })
     
-    layout_column_wrap(
-      width = 300,
-      style = "grid-auto-rows: auto;",
-      !!!expcards
+    do.call(
+      layout_column_wrap,
+      c(
+        list(
+          width = 250,
+          style = "grid-auto-rows: auto;"
+        ),
+        expcards
+      )
     )
   })
   
@@ -491,9 +551,9 @@ server <- function (input, output, session){
                 row$Uni), 
             div(
               class = "expdate",
-              row$From, 
+              date_formatter(row$From), 
               " – ", 
-              row$To)
+              date_formatter(row$To))
             ), 
         div(class = "exptext", 
             "Thesis title:", 
@@ -521,10 +581,15 @@ server <- function (input, output, session){
       make_edu_entry(data.education[i, ])
     })
     
-    layout_column_wrap(
-      width = 250,
-      style = "grid-auto-rows: auto;",
-      !!!educards
+    do.call(
+      layout_column_wrap,
+      c(
+        list(
+          width = 250,
+          style = "grid-auto-rows: auto;"
+        ),
+        educards
+      )
     )
   })
   #employment----
@@ -552,9 +617,9 @@ server <- function (input, output, session){
               row$Employer), 
           div(
             class = "expdate",
-            row$From, 
+            date_formatter(row$From), 
             " – ", 
-            row$To)
+            date_formatter(row$To))
         ), 
         div(class = "expdate", 
             "Supervised by:", 
@@ -571,52 +636,20 @@ server <- function (input, output, session){
       make_emp_entry(data.employment[i, ])
     })
     
-    layout_column_wrap(
-      width = 250,
-      style = "grid-auto-rows: auto;",
-      !!!empcards
+    do.call(
+      layout_column_wrap,
+      c(
+        list(
+          width = 250,
+          style = "grid-auto-rows: auto;"
+        ),
+        empcards
+      )
     )
   })
   
   #publications ----
-  format_authors <- function(authors, my_name) {
-    
-    author_list <- trimws(strsplit(authors, "; ")[[1]])
-    
-    formatted <- sapply(author_list, function(author) {
-      if (grepl(my_name, author) == TRUE) {
-        paste0("<strong><u style = 'color: #000000'>", author, "</u></strong>")
-      } else {
-        author
-      }
-    })
-    
-    HTML(paste(formatted, collapse = "; "))
-  }
-  get_year <- function(x) {
-    
-    x <- trimws(x)
-    
-    if(nchar(x) == 4){
-      return(x)
-    }
-    else if(grepl("^\\d{4}-\\d{2}-\\d{2}", x)) {
-      return(substr(x, 1, 4))
-    }
-    else if (grepl("^\\d{4}(-\\d{2})?$(-\\d{2})?$", x)) {
-      # yyyy-mm OR yyyy
-      return(substr(x, 1, 4))
-    }
-    
-    else if (grepl("^\\d{2}/\\d{2}/\\d{2}$", x)) {
-      # dd/mm/yy
-      return(paste0("20", substr(x, 7, 8)))
-    }
-    
-   
-    else{NA_character_}
-    
-  }
+  
   
   make_pub_entry <- function(row) {
     
@@ -676,10 +709,15 @@ server <- function (input, output, session){
       make_pub_entry(data.pubs[i, ])
     })
     
-    layout_column_wrap(
-      width = 250,
-      style = "grid-auto-rows: auto;",
-      !!!pubcards
+    do.call(
+      layout_column_wrap,
+      c(
+        list(
+          width = 250,
+          style = "grid-auto-rows: auto;"
+        ),
+        pubcards
+      )
     )
   })
   
@@ -707,7 +745,7 @@ server <- function (input, output, session){
           ),
           div(
             class = "exptext",
-            row$Date, " · ", row$Location
+            date_formatter(row$Date), " · ", row$Location
           ),
           div(style = "font-weight: 600; margin-bottom: 0.5rem;  ", 
               class = "edutext", 
@@ -730,10 +768,15 @@ server <- function (input, output, session){
       make_conf_entry(data.conferences[i, ])
     })
     
-    layout_column_wrap(
-      width = 250,
-      style = "grid-auto-rows: auto;",
-      !!!confcards
+    do.call(
+      layout_column_wrap,
+      c(
+        list(
+          width = 250,
+          style = "grid-auto-rows: auto;"
+        ),
+        confcards
+      )
     )
   })
   
@@ -747,7 +790,7 @@ server <- function (input, output, session){
         div(
           div(
             class = "exptext",
-            row$Date, " · ", row$Type
+            date_formatter(row$Date), " · ", row$Type
           )
           
         )
@@ -790,10 +833,15 @@ server <- function (input, output, session){
       make_prize_entry(data.prizes[i, ])
     })
     
-    layout_column_wrap(
-      width = 250,
-      style = "grid-auto-rows: auto;",
-      !!!prizecards
+    do.call(
+      layout_column_wrap,
+      c(
+        list(
+          width = 250,
+          style = "grid-auto-rows: auto;"
+        ),
+        prizecards
+      )
     )
   })
   
@@ -802,8 +850,8 @@ server <- function (input, output, session){
     
     # 1. Group data by Category & Logo
     # Preserve unique category order
-    unique_cats <- unique(data.skills$Category)
-    
+    unique_cats <- c("In vivo", "In vitro", "General", "Analysis", "Software", "Languages")
+
     # Group and aggregate descriptions into lists
     grouped_skills <- aggregate(
       Description ~ Category + Logo, 
@@ -816,37 +864,49 @@ server <- function (input, output, session){
     
     # Set factor levels to maintain original category order
     grouped_skills$Category <- factor(grouped_skills$Category, levels = unique_cats)
-    
+    # Order the data frame rows by the factor levels
+    grouped_skills <- grouped_skills[order(grouped_skills$Category), ]
     
     # 2. Map through each category to construct a bslib card
-    cards_list <- pmap(grouped_skills, function(Category, Logo, Descriptions) {
-      card(
-        class = "card-custom", 
-        card_header(
-          div(
+    skillcards <- mapply(
+      function(Category, Logo, Descriptions) {
+        card(
+          class = "card-custom", 
+          card_header(
             div(
-              tags$img(src = Logo, style = "max-width: 100%; height: 80px; "))
-            
-          )
-          
-        ),
-        card_body(
-          div(
-            class = "edutitle", 
-            Category
+              div(
+                tags$img(src = Logo, style = "max-width: 100%; height: 80px; ")
+              )
+            )
           ),
-          tags$ul(
-            lapply(Descriptions, tags$li)
+          card_body(
+            div(
+              class = "edutitle", 
+              Category
+            ),
+            tags$ul(
+              lapply(Descriptions, tags$li)
+            )
           )
         )
-      )
-    })
+      },
+      grouped_skills$Category,
+      grouped_skills$Logo,
+      grouped_skills$Descriptions,
+      SIMPLIFY = FALSE,
+      USE.NAMES = FALSE
+    )
     
     # 3. Render grid layout (responsive: 3 columns on wide screens, minimum width 300px)
-    layout_column_wrap(
-      width = 250,
-      style = "grid-auto-rows: auto;",
-      !!!cards_list
+    do.call(
+      layout_column_wrap,
+      c(
+        list(
+          width = 250,
+          style = "grid-auto-rows: auto;"
+        ),
+        skillcards
+      )
     )
   })
   
@@ -864,7 +924,7 @@ server <- function (input, output, session){
       if(!is.na(row$Date)){
         div(
           class = "expdate", 
-          row$Date
+          date_formatter(row$Date)
         )
       }, 
       if(!is.na(row$Info)){
@@ -901,43 +961,55 @@ server <- function (input, output, session){
   }
   output$commitment <- renderUI({
     
+    types <- unique(as.character(data.commitment$Type))
     # 1. Group data 
     # Preserve unique type order as factor levels
     data.commitment$Type <- factor(
       data.commitment$Type, 
-      levels = unique(data.commitment$Type)
+      levels = types
     )
     
     # Split data frame into a named list by Type
-    grouped_commitment <- split(data.commitment, data.commitment$Type)
+    grouped_commitment <- split(data.commitment, data.commitment$Type, drop = TRUE)
+    grouped_commitment <- grouped_commitment[types[types %in% names(grouped_commitment)]]
     
-    
-    cards <- map2(names(grouped_commitment), grouped_commitment, function(type_name, sub_df) {
-      
-      # Generate the list of row divs for this specific Type
-      body_divs <- lapply(seq_len(nrow(sub_df)), function(i) {
-        make_commitment_divs(sub_df[i, ])
-      })
-      
-      # Construct the Card
-      card(
-        class = "card-custom", 
-        card_header(
-          style = "min-height: 0px; ",
-          div(class = "edutitle", 
-              type_name)
-        ),
-        card_body(
-          body_divs
+    cards <- mapply(
+      function(type_name, sub_df) {
+        
+        # Generate the list of row divs for this specific Type
+        body_divs <- lapply(seq_len(nrow(sub_df)), function(i) {
+          make_commitment_divs(sub_df[i, ])
+        })
+        
+        # Construct the Card
+        card(
+          class = "card-custom", 
+          card_header(
+            style = "min-height: 0px; ",
+            div(class = "edutitle", 
+                type_name)
+          ),
+          card_body(
+            body_divs
+          )
         )
-      )
-    })
+      },
+      names(grouped_commitment),
+      grouped_commitment,
+      SIMPLIFY = FALSE,
+      USE.NAMES = FALSE
+    )
     
     # Return the list of cards wrapped in a container
-    layout_column_wrap(
-      width = 250,
-      style = "grid-auto-rows: auto;",
-      !!!cards
+    do.call(
+      layout_column_wrap,
+      c(
+        list(
+          width = 250,
+          style = "grid-auto-rows: auto;"
+        ),
+        cards
+      )
     )
   })
   
@@ -991,10 +1063,15 @@ server <- function (input, output, session){
       make_cont_entry(data.contact[i, ])
     })
     
-    layout_column_wrap(
-      width = 250,
-      style = "grid-auto-rows: auto;",
-      !!!contcards
+    do.call(
+      layout_column_wrap,
+      c(
+        list(
+          width = 250,
+          style = "grid-auto-rows: auto;"
+        ),
+        contcards
+      )
     )
   })
   
