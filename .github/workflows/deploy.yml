@@ -37,7 +37,7 @@ jobs:
       - name: Export Shinylive app
         shell: Rscript {0}
         run: |
-          shinylive::export(".", "_site")
+          shinylive::export(".", "_site", exclude = c("scripts"))
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
