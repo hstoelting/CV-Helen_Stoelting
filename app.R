@@ -2,15 +2,15 @@ library(shiny)
 library(bslib)
 
 #setwd("C:/Users/hsto0009/OneDrive - Monash University/Admin/CVs/Shiny_CV")
-data.experience <- read.csv(file = file.path("data", "Experience.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
-data.education <- read.csv(file = file.path("data", "Education.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
-data.employment <- read.csv(file = file.path("data", "Employment.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
+data.experience <- read.csv(file = file.path("data", "Experience.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+data.education <- read.csv(file = file.path("data", "Education.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+data.employment <- read.csv(file = file.path("data", "Employment.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
 data.pubs <- read.csv(file = file.path("data", "CV_pubs.csv"))
-data.conferences <- read.csv(file = file.path("data", "Conferences.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
-data.prizes <- read.csv(file = file.path("data", "Prizes.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
-data.skills <- read.csv(file = file.path("data", "Skills.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
-data.commitment <- read.csv(file = file.path("data", "Commitment.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
-data.contact <- read.csv(file = file.path("data", "Contact.csv"), fileEncoding = "latin1", stringsAsFactors = FALSE)
+data.conferences <- read.csv(file = file.path("data", "Conferences.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+data.prizes <- read.csv(file = file.path("data", "Prizes.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+data.skills <- read.csv(file = file.path("data", "Skills.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+data.commitment <- read.csv(file = file.path("data", "Commitment.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+data.contact <- read.csv(file = file.path("data", "Contact.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
 #UI ---- 
 ui <- page_navbar(
   theme = bs_theme(
@@ -448,11 +448,10 @@ server <- function (input, output, session){
     card(
       class = "card-custom",
       card_header(
-        div(
           div(
-            tags$img(src = row$Logo, height = "50px"))
-          
-        )
+            tags$img(src = row$Logo, 
+                     style = "height: 50px; width: auto; max-width: 100%; object-fit: contain;")
+            )
         
       ),
 
@@ -532,9 +531,8 @@ server <- function (input, output, session){
       class = "card-custom", 
       card_header(
         div(
-          div(
-              tags$img(src = row$Logo, height = "50px"))
-       
+          tags$img(src = row$Logo, 
+                   style = "height: 50px; width: auto; max-width: 100%; object-fit: contain;")
         )
         
       ),
@@ -599,9 +597,8 @@ server <- function (input, output, session){
       class = "card-custom", 
       card_header(
         div(
-          div(
-            tags$img(src = row$Logo, height = "50px"))
-          
+          tags$img(src = row$Logo, 
+                   style = "height: 50px; width: auto; max-width: 100%; object-fit: contain;")
         )
         
       ),
@@ -914,6 +911,7 @@ server <- function (input, output, session){
   make_commitment_divs <- function(row) {
     
     div(
+      
       if(!is.na(row$Description)){
         div(
           class = "exptitle", 
@@ -980,16 +978,22 @@ server <- function (input, output, session){
         body_divs <- lapply(seq_len(nrow(sub_df)), function(i) {
           make_commitment_divs(sub_df[i, ])
         })
-        
+        print(sub_df$Logo)
         # Construct the Card
         card(
           class = "card-custom", 
           card_header(
-            style = "min-height: 0px; ",
-            div(class = "edutitle", 
-                type_name)
-          ),
+            div(
+              div(
+                tags$img(src = unique(sub_df$Logo), style = "max-width: 100%; height: 80px; ")
+              )
+            )
+          ), 
           card_body(
+              div(
+                class = "edutitle", 
+                type_name
+              ),
             body_divs
           )
         )
