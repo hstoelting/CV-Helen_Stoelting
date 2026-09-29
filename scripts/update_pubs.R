@@ -91,4 +91,4 @@ pubs <- orcid_works("0000-0002-7830-2776") %>%
 
 
 write.csv(x = pubs, file = "data/CV_pubs.csv", fileEncoding = "UTF-8", row.names = FALSE)
-writeLines(format(Sys.Date(), "%d %B %Y"), "data/pubs_last-updated.txt")
+writeLines(format(Sys.time(), "%H:%M, %d %B %Y"), "data/pubs_last-updated.txt")

@@ -313,7 +313,8 @@ ui <- page_navbar(
             href = "https://orcid.org/0000-0002-7830-2776", 
             target = "_blank", 
             "ORCiD"
-          )
+          ), 
+          uiOutput("pubs_last_updated")
         )
           
       )
@@ -718,6 +719,20 @@ server <- function (input, output, session){
     )
   })
   
+  output$pubs_last_updated <- renderUI({
+    # Read from the saved text file created during fetch
+    if (file.exists("data/pubs_last-updated.txt")) {
+      last_date <- readLines("data/pubs_last-updated.txt", n = 1)
+    } else {
+      # Fallback to the CSV file's modified date
+      last_date <- format(file.info("data/cv_pubs.csv")$mtime, "%H:%M, %d %B %Y")
+    }
+    
+    tags$p(
+      class = "expdate",
+      paste("Last updated:", last_date)
+    )
+  })
   #conferences ----
   make_conf_entry <- function(row) {
     
