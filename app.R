@@ -1,7 +1,6 @@
 library(shiny)
 library(bslib)
 
-#setwd("C:/Users/hsto0009/OneDrive - Monash University/Admin/CVs/Shiny_CV")
 data.experience <- read.csv(file = file.path("data", "Experience.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
 data.education <- read.csv(file = file.path("data", "Education.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
 data.employment <- read.csv(file = file.path("data", "Employment.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
@@ -11,6 +10,7 @@ data.prizes <- read.csv(file = file.path("data", "Prizes.csv"), fileEncoding = "
 data.skills <- read.csv(file = file.path("data", "Skills.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
 data.commitment <- read.csv(file = file.path("data", "Commitment.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
 data.contact <- read.csv(file = file.path("data", "Contact.csv"), fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+
 #UI ---- 
 ui <- page_navbar(
   theme = bs_theme(
@@ -793,58 +793,157 @@ server <- function (input, output, session){
   })
   
   #prizes ----
-  make_prize_entry <- function(row) {
+  # make_prize_entry <- function(row) {
+  #   
+  #   card(
+  #     class = "card-custom", 
+  #     card_header(
+  #       style = "min-height: 10px;",
+  #       div(
+  #         div(
+  #           class = "exptext",
+  #           date_formatter(row$Date), " · ", row$Type
+  #         )
+  #         
+  #       )
+  #       
+  #     ),
+  #     
+  #     card_body(
+  #       
+  #       div(
+  #         div(
+  #           class = "edutitle",
+  #           style = "margin-bottom: 0.5rem;  ", 
+  #           row$Title
+  #         ),
+  #         if(!is.na(row$Description)){
+  #           div(class = "exptext", 
+  #               style = "margin-top: 0.5rem;  ", 
+  #               row$Description
+  #           )
+  #         }, 
+  #         div(class = "exptext", 
+  #             style = "margin-top: 0.5rem; margin-bottom: 0.5rem;  ", 
+  #             "Value: ", row$Value),
+  #         
+  #         if(!is.na(row$Image)){
+  #           div(
+  #             tags$img(src = row$Image, style = "max-width: 100%; max-height: 150px; "))
+  #         }
+  #         
+  #         
+  #       )
+  #     )
+  #   )
+  #   
+  # }
+  # 
+  # output$prizes <- renderUI({
+  #   
+  #   prizecards <- lapply(seq_len(nrow(data.prizes)), function(i) {
+  #     make_prize_entry(data.prizes[i, ])
+  #   })
+  #   
+  #   do.call(
+  #     layout_column_wrap,
+  #     c(
+  #       list(
+  #         width = 250,
+  #         style = "grid-auto-rows: auto;"
+  #       ),
+  #       prizecards
+  #     )
+  #   )
+  # })
+  make_prize_divs <- function(row) {
     
-    card(
-      class = "card-custom", 
-      card_header(
-        style = "min-height: 10px;",
+    div(
+      style = "margin: 0px; padding: 0px; ",
+      if(!is.na(row$Title)){
         div(
-          div(
-            class = "exptext",
-            date_formatter(row$Date), " · ", row$Type
-          )
-          
+          class = "exptitle", 
+          style = "font-weight: 600; margin-top: 0rem; ", 
+          "▪ ", row$Title
         )
-        
-      ),
-      
-      card_body(
-        
+      }, 
+      if(!is.na(row$Date)){
         div(
-          div(
-            class = "edutitle",
-            style = "margin-bottom: 0.5rem;  ", 
-            row$Title
-          ),
-          if(!is.na(row$Description)){
-            div(class = "exptext", 
-                style = "margin-top: 0.5rem;  ", 
-                row$Description
-            )
-          }, 
-          div(class = "exptext", 
-              style = "margin-top: 0.5rem; margin-bottom: 0.5rem;  ", 
-              "Value: ", row$Value),
-          
-          if(!is.na(row$Image)){
-            div(
-              tags$img(src = row$Image, style = "max-width: 100%; max-height: 150px; "))
-          }
-          
-          
+          class = "expdate", 
+          date_formatter(row$Date)
         )
-      )
+      },     
+      if(!is.na(row$Description)){
+        div(class = "exptext", 
+            style = "margin-top: 0.5rem;  ", 
+            row$Description
+        )
+      },
+      if(!is.na(row$Value)){
+        div(
+          class = "exptext", 
+          style = "font-weight: 400; color: #006dae; margin-bottom: 0rem; margin-top: 0.5rem;",  
+          row$Value
+        )
+      }, 
+      if(!is.na(row$Image)){
+                  div(
+                    tags$img(src = row$Image, style = "max-width: 100%; max-height: 150px; "))
+                }
     )
     
   }
   
   output$prizes <- renderUI({
+    message("starting output prizes")
+    cats <- unique(as.character(data.prizes$Category))
+    print(cats)
+    # 1. Group data 
+    # Preserve unique type order as factor levels
+    data.prizes$Category <- factor(
+      data.prizes$Category, 
+      levels = cats
+    )
     
-    prizecards <- lapply(seq_len(nrow(data.prizes)), function(i) {
-      make_prize_entry(data.prizes[i, ])
-    })
+    print(data.prizes)
+    # Split data frame into a named list by Type
+    grouped_prizes <- split(data.prizes, data.prizes$Category, drop = TRUE)
+    grouped_prizes <- grouped_prizes[cats[cats %in% names(grouped_prizes)]]
+    print(grouped_prizes)
+    cards <- mapply(
+      function(type_name, sub_df) {
+        
+        # Generate the list of row divs for this specific Type
+        body_divs <- lapply(seq_len(nrow(sub_df)), function(i) {
+          make_prize_divs(sub_df[i, ])
+        })
+        print(sub_df$Logo)
+        # Construct the Card
+        card(
+          class = "card-custom", 
+          card_header(
+            div(
+              div(
+                tags$img(src = unique(sub_df$Logo), style = "max-width: 100%; height: 80px; ")
+              )
+            )
+          ), 
+          card_body(
+            div(
+              class = "edutitle", 
+              type_name
+            ),
+            body_divs
+          )
+        )
+      },
+      names(grouped_prizes),
+      grouped_prizes,
+      SIMPLIFY = FALSE,
+      USE.NAMES = FALSE
+    )
     
+    # Return the list of cards wrapped in a container
     do.call(
       layout_column_wrap,
       c(
@@ -852,11 +951,10 @@ server <- function (input, output, session){
           width = 250,
           style = "grid-auto-rows: auto;"
         ),
-        prizecards
+        cards
       )
     )
   })
-  
   #skills----
   output$skills <- renderUI({
     

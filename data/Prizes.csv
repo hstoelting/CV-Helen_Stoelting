@@ -1,20 +1,20 @@
-﻿Date,Title,Description,Type,Value,Image
-Aug-26,ASI Snapshot Image Competition,Primary image for ASI 'Day of Immunology 2027' marketing campaign,Competition,non-monetary,Snapshot.png
-Jul-26,ASI Postdoctoral Travel Award,,Travel Grant,"AUD 5,000",
-Feb-26,Fungal Infection Trust Geoff Scott Travel Grant,,Travel Grant,"GBP 1,200",
-Sep-25,"Monash Faculty of Medicine, Nursing and Health Sciences Platform Access Grant","""Using cutting edge multi-omics approaches to shed light on exacerbated fungal disease in diabetes""",Research Grant,"AUD 14,936",
-Nov-24,VIIN Young Investigator Symposium,Runner Up - Best Oral Presentation,Presentation Prize,AUD 200,
-Mar-24,2024 ICB Cover Competition for Immunology & Cell Biology,Cover of Immunology & Cell Biology since 2024,Competition,AUD 500,ICB Cover.jpg
-Dec-22,Imperial College Trust Conference Funding,,Travel Grant,GBP 400,
-Dec-22,Cayman Chemical Conference Grant,,Travel Grant,USD 250,
-Dec-22,BSI Congress 2022 Travel Bursary,,Travel Grant,GBP 250,
-Jun-22,Imperial College London Graduate School Science Writing Competition,"Joint 3rd Prize (Entry: ""If Dr. Seuss wrote my PhD"")",Competition,GBP 150,
-Jan-22,EAACI Winter School,Best Oral Presentation,Presentation Prize,CHF 150,
-Dec-21,BSI Congress 2021 Travel Bursary,,Travel Grant,GBP 250,
-Mar-21,ERS Lung Science Conference Bursary,Free registration,Conference Bursary,equal to EUR 89,
-Dec-20,Imperial College London,12-week Stipend Extension,Scholarship,"GBP 5,997",
-Dec-20,Keystone eSymposia Trainee Scholarship,Free registration,Conference Bursary,equal to USD 150,
-Dec-19,BSI Congress 2019 Travel Bursary,,Travel Grant,GBP 250,
-Oct-18,British Lung Foundation PhD Stipend,PhD Studentship,Scholarship,"GBP 72,428",
-Sep-18,MSc Immunology Dean's Prize,Best Overall Performance,Award,GBP 200,
-Aug-16,German Academic Exchange Service (DAAD) RISE Worldwide,"In support of a 2-month internship at Roehampton University, United Kingdom",Scholarship,"EUR 1,575",
+﻿Category,Date,Title,Description,Type,Value,Image,Logo
+Research Funding,Sep-25,"Monash Faculty of Medicine, Nursing and Health Sciences Platform Access Grant","""Using cutting edge multi-omics approaches to shed light on exacerbated fungal disease in diabetes""",Research Grant,"AUD 14,936",,research.svg
+Travel Awards,Jul-26,ASI Postdoctoral Travel Award,,Travel Grant,"AUD 5,000",,travel.svg
+Stipends,Dec-20,Imperial College London,12-week Stipend Extension,Scholarship,"GBP 5,997",,stipend.svg
+Prizes,Aug-26,ASI Snapshot Image Competition,Primary image for ASI 'Day of Immunology 2027' marketing campaign,Competition,,Snapshot.png,prize.svg
+Travel Awards,Feb-26,Fungal Infection Trust Geoff Scott Travel Grant,,Travel Grant,"GBP 1,200",,travel.svg
+Prizes,Nov-24,VIIN Young Investigator Symposium,Runner Up - Best Oral Presentation,Presentation Prize,AUD 200,,prize.svg
+Prizes,Mar-24,2024 ICB Cover Competition for Immunology & Cell Biology,Cover of Immunology & Cell Biology since 2024,Competition,AUD 500,ICB Cover.jpg,prize.svg
+Travel Awards,Dec-22,Imperial College Trust Conference Funding,,Travel Grant,GBP 400,,travel.svg
+Travel Awards,Dec-22,Cayman Chemical Conference Grant,,Travel Grant,USD 250,,travel.svg
+Travel Awards,Dec-22,BSI Congress 2022 Travel Bursary,,Travel Grant,GBP 250,,travel.svg
+Prizes,Jun-22,Imperial College London Graduate School Science Writing Competition,"Joint 3rd Prize (Entry: ""If Dr. Seuss wrote my PhD"")",Competition,GBP 150,,prize.svg
+Prizes,Jan-22,EAACI Winter School,Best Oral Presentation,Presentation Prize,CHF 150,,prize.svg
+Travel Awards,Dec-21,BSI Congress 2021 Travel Bursary,,Travel Grant,GBP 250,,travel.svg
+Travel Awards,Mar-21,ERS Lung Science Conference Bursary,Free registration,Conference Bursary,equal to EUR 89,,travel.svg
+Travel Awards,Dec-20,Keystone eSymposia Trainee Scholarship,Free registration,Conference Bursary,equal to USD 150,,travel.svg
+Travel Awards,Dec-19,BSI Congress 2019 Travel Bursary,,Travel Grant,GBP 250,,travel.svg
+Stipends,Oct-18,British Lung Foundation PhD Stipend,PhD Studentship,Scholarship,"GBP 72,428",,stipend.svg
+Prizes,Sep-18,Imperial College London MSc Immunology Dean's Prize,Best Overall Performance,Award,GBP 200,,prize.svg
+Stipends,Aug-16,German Academic Exchange Service (DAAD) RISE Worldwide,"In support of a 2-month internship at Roehampton University, United Kingdom",Scholarship,"EUR 1,575",,stipend.svg
