@@ -81,12 +81,16 @@ pubs <- orcid_works("0000-0002-7830-2776") %>%
   add_openalex_citations(.) %>%
   mutate(journal = case_when(
     doi == "10.21203/rs.3.rs-7015602/v1" ~ "Research Square", 
+    doi == "10.21203/rs.3.rs-11302422/v1" ~ "Research Square", 
     doi == "10.1101/2022.02.15.480490" ~ "bioRxiv", 
     .default = journal
   )) %>% 
   left_join(y = read.csv(file = "data/Shiny CV_journal logos.csv")) %>%
   mutate(authors = gsub(pattern = "Harshini Weerasinghe; Helen Stölting; Adam J. Rose; Ana Traven; Joseph Heitman", 
                         replacement = "Harshini Weerasinghe*; Helen Stölting*; Adam J. Rose; Ana Traven; *shared first author", 
+                        x = authors))%>% 
+  mutate(authors = gsub(pattern = "Ana Traven; Helen Stölting; Antara Ghoshal; Harshini Weerasinghe; Yuqin Wu; Patricia Rusu; Dylan Multari; Katherine Jeppe; Christopher Barlow; Ralf Schittenhelm; Kim O’Sullivan; Andre Mu; Adam Rose",
+                        replacement = "Helen Stölting; Antara Ghoshal; Harshini Weerasinghe; Yuqin Wu; Patricia Rusu; Dylan Multari; Katherine Jeppe; Christopher Barlow; Ralf Schittenhelm; Kim O’Sullivan; Andre Mu; Adam Rose; Ana Traven",
                         x = authors))
 
 
